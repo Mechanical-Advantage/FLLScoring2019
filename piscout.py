@@ -12,6 +12,8 @@ from event import CURRENT_EVENT
 import gamespecific as game
 import serverinfo
 import json
+from pyzbar import pyzbar
+import argparse
 
 # PiScout is a means of collecting match data in a scantron-like format
 # This program was designed to be easily configurable, and new sheets can be made rapidly
@@ -202,27 +204,82 @@ class PiScout:
             cv2.rectangle(self.display, ((loc[0] + min) * 16, loc[1] * 16),
                           ((loc[0] + min + 1) * 16,
                            (loc[1] + 1) * 16), (0, 50, 150), 3)
+
+        return retval
+    def rangefielddebug(self, startlocation, startval, endval):
+        loc = self.parse(startlocation)
+        end = loc[0] - startval + endval + 1  #grid coordinate where the rangefield ends
+
+        values = [self.getvalue((val, loc[1])) for val in range(loc[0], end)]
+        min = np.asscalar(np.argmin(values))
+        retval = 0
+        rect = 0
+        if values[min] < 45000:
+            retval = startval + min
+            rect = 1
+        if rect:
+            cv2.rectangle(self.display, ((loc[0] + min) * 16, loc[1] * 16),
+                          ((loc[0] + min + 1) * 16,
+                           (loc[1] + 1) * 16), (0, 50, 150), 3)
+
+        return retval
+
+    def rangefieldcolumn(self, startlocation, startval, endval):
+        loc = self.parse(startlocation)
+        end = loc[1] - startval + endval  #grid coordinate where the rangefield ends
+        #print(end,loc[0],loc[1])
+        values = [self.getvalue((loc[0], val)) for val in range(loc[1]-1, end)]
+        min = np.asscalar(np.argmin(values))
+        print(loc[0],loc[1],end,min,values)
+        retval = 0
+        rect = 0
+        if values[min] < 45000:
+            retval = startval + min
+            rect = 1
+        if rect:
+            cv2.rectangle(self.display, (loc[0] * 16, (loc[1] + min -1) * 16),
+                          ((loc[0] + 1) * 16,
+                           (loc[1] + min ) * 16), (0, 50, 150), 3)
         return retval
 
     # Define a new count field at a given location
     # This field spans across multiple grid units
     # Returns the highest shaded value, or 0 if none are shaded
-    def countfield(self, startlocation, startval, endval):
+    def countfield(self, startlocation, endlocation, startval):
         loc = self.parse(startlocation)
-        end = loc[0] - startval + endval + 1
+        end = self.parse(endlocation)[0] + 1
 
         values = [self.getvalue((val, loc[1])) for val in range(loc[0], end)]
         retval = 0
-        for el, box in enumerate(values):
+        for el, box in enumerate(values[::-1]):
             if box < 45000:
-                retval = startval + el
+                retval = startval + len(values) - el
         if retval:
-            #cv2.rectangle(self.display, ((loc[0] + retval - 1) * 16, loc[1] * 16),
-            #              ((loc[0] + retval) * 16, loc[1] * 16 + 16),
-            #              (0, 50, 150), 3)
-            cv2.rectangle(self.display, (loc[0] * 16, loc[1] * 16),
-                          ((loc[0] + retval) * 16, loc[1] * 16 + 16),
+            cv2.rectangle(self.display, ((loc[0] + retval) * 16, loc[1] * 16),
+                          ((loc[0] + retval + 1) * 16, loc[1] * 16 + 16),
                           (0, 50, 150), 3)
+        return retval
+
+    def readqrcode(self,startlocation):
+        if self.shift == 0:
+            img_offset = 0
+        else:
+            img_offset = 300
+        crop_img = self.display[img_offset:300+img_offset, 0:1000]
+        cv2.imshow("cropped", crop_img)
+        barcodes = pyzbar.decode(crop_img)
+        retval = "0,0"
+        # print(barcodes)
+        for barcode in barcodes:
+            print("found the barcode")
+            # (x, y, w, h) = barcode.rect
+            # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 50, 150), 3)
+            barcodeData = barcode.data.decode("utf-8")
+            barcodeType = barcode.type
+            # text = "{} ({})".format(barcodeData, barcodeType)
+            # cv2.putText(image, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX,	0.5, (0, 0, 255), 2)
+            retval = barcodeData
+            print(retval)
         return retval
 
     # Adds a data entry into the data dictionary
@@ -232,7 +289,7 @@ class PiScout:
     # Opens the GUI, preparing the data for submission
     def submit(self):
         #If the match is empty, reset the data and display fields
-        if self.data['StartPos'] == -1 and self.data['StartLevel'] == 0 and self.data['DriverRating'] == 0:
+        if self.data['Team'] == 0:
             print("Found an empty match, skipping")
             self.data = dict(game.SCOUT_FIELDS)
             self.display = cv2.cvtColor(self.sheet, cv2.COLOR_GRAY2BGR)
