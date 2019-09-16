@@ -245,18 +245,21 @@ class PiScout:
     # Define a new count field at a given location
     # This field spans across multiple grid units
     # Returns the highest shaded value, or 0 if none are shaded
-    def countfield(self, startlocation, endlocation, startval):
+    def countfield(self, startlocation, startval, endval):
         loc = self.parse(startlocation)
-        end = self.parse(endlocation)[0] + 1
+        end = loc[0] - startval + endval + 1
 
         values = [self.getvalue((val, loc[1])) for val in range(loc[0], end)]
         retval = 0
-        for el, box in enumerate(values[::-1]):
+        for el, box in enumerate(values):
             if box < 45000:
-                retval = startval + len(values) - el
+                retval = startval + el
         if retval:
-            cv2.rectangle(self.display, ((loc[0] + retval) * 16, loc[1] * 16),
-                          ((loc[0] + retval + 1) * 16, loc[1] * 16 + 16),
+            #cv2.rectangle(self.display, ((loc[0] + retval - 1) * 16, loc[1] * 16),
+            #              ((loc[0] + retval) * 16, loc[1] * 16 + 16),
+            #              (0, 50, 150), 3)
+            cv2.rectangle(self.display, (loc[0] * 16, loc[1] * 16),
+                          ((loc[0] + retval - startval + 1) * 16, loc[1] * 16 + 16),
                           (0, 50, 150), 3)
         return retval
 

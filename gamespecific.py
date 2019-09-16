@@ -9,66 +9,45 @@ SCOUT_FIELDS = {
     "TechFouls": 0,
     "Replay": 0,
     "Flag": 0,
-    "AllianceColor": 0,
-    "StartPos": 0,
-    "StartLevel": 0,
-    "CrossedLine": 0,
-    "AutoShipHatch": 0,
-	"AutoShipHatchFailures": 0,
-	"AutoShipCargo": 0,
-	"AutoShipCargoFailures": 0,
-    "AutoRocketHatch": 0,
-	"AutoRocketHatchFailures": 0,
-    "AutoRocketCargo": 0,
-	"AutoRocketCargoFailures": 0,
-    "RocketL1Hatch": 0,
-	"RocketL1HatchFailures": 0,
-    "RocketL1Cargo": 0,
-	"RocketL1CargoFailures": 0,
-    "RocketL2Hatch": 0,
-	"RocketL2HatchFailures": 0,
-    "RocketL2Cargo": 0,
-	"RocketL2CargoFailures": 0,
-    "RocketL3Hatch": 0,
-	"RocketL3HatchFailures": 0,
-    "RocketL3Cargo": 0,
-	"RocketL3CargoFailures": 0,
-    "ShipHatch": 0,
-	"ShipHatchFailures": 0,
-    "ShipCargo": 0,
-	"ShipCargoFailures": 0,
-    "ClimbLevel": 0,
-	"ClimbLevelAttempted": 0,
-    "WonMatch": 0,
-    "LiftedOthers": 0,
-	"LiftedOthersAttempted": 0,
-    "Disabled": 0,
-    "DriverRating": 0,
-    "HatchColRating": 0,
-    "HatchDelRating": 0,
-    "CargoColRating": 0,
-    "CargoDelRating": 0,
-    "DefenseRating": 0,
-    "AvoidDefenseRating": 0
+    "TableNumber": 0,
+    "M01a": 0,
+    "M01b": 0,
+    "M02a": 0,
+    "M02b": 0,
+    "M02c": 0,
+    "M03a": 0,
+    "M04a": 0,
+    "M05a": 0,
+    "M05b": 0,
+    "M06a": 0,
+    "M07a": 0,
+    "M08a": 0,
+    "M09a": 0,
+    "M10a": 0,
+    "M11a": 0,
+    "M12a": 0,
+    "M12b": 0,
+    "M13a": 0,
+    "M14a": 0
 }
 
 #Defines the fields that are stored in the "averages" and similar tables of the database. These are the fields displayed on the home page of the website.
 AVERAGE_FIELDS = {
     "team": 0,
     "apr":0,
-    "RocketL1Hatch": 0,
-    "RocketL1Cargo": 0,
-    "RocketL2Hatch": 0,
-    "RocketL2Cargo": 0
+    "M01a": 0,
+    "M01b": 0,
+    "M02a": 0,
+    "M02b": 0
 }
 
 #Defines the fields displayed on the charts on the team and compare pages
 CHART_FIELDS = {
     "match": 0,
-    "RocketL1Hatch": 0,
-    "RocketL1Cargo": 0,
-    "RocketL2Hatch": 0,
-    "RocketL2Cargo": 0
+    "M01a": 0,
+    "M01b": 0,
+    "M02a": 0,
+    "M02b": 0
 }
 
 
@@ -76,77 +55,59 @@ CHART_FIELDS = {
 # Submits three times, because there are three matches on one sheet
 # The sheet is developed in Google Sheets and the coordinates are defined in terms on the row and column numbers from the sheet.
 def processSheet(scout):
-    for s in (0, 23):
-        #Sets the shift value (used when turning cell coordinates into pixel coordinates)
-        scout.shiftDown(s)
+    num1 = scout.rangefield('J-5', 0, 9)
+    num2 = scout.rangefield('J-6', 0, 9)
+    num3 = scout.rangefield('J-7', 0, 9)
+    num4 = scout.rangefield('J-8', 0, 9)
+    num5 = scout.rangefield('J-9', 0, 9)
+    scout.set("Team", 10000 * num1 + 1000 * num2 + 100 * num3 + 10 * num4 + num5)
 
-        num1 = scout.rangefield('J-5', 0, 9)
-        num2 = scout.rangefield('J-6', 0, 9)
-        num3 = scout.rangefield('J-7', 0, 9)
-        num4 = scout.rangefield('J-8', 0, 9)
-        scout.set("Team", 1000 * num1 + 100 * num2 + 10 * num3 + num4)
+    match1 = scout.rangefield('AB-6', 0, 9)
+    match2 = scout.rangefield('AB-7', 0, 9)
+    scout.set("Match", 10 * match1 + match2)
 
-        match1 = scout.rangefield('AB-5', 0, 1)
-        match2 = scout.rangefield('AB-6', 0, 9)
-        match3 = scout.rangefield('AB-7', 0, 9)
-        scout.set("Match", 100 * match1 + 10 * match2 + match3)
+    scout.set("TableNumber", scout.rangefield('AC-9', 1, 6))
 
-        scout.set("Fouls", int(0))
-        scout.set("TechFouls", int(0))
-        tm = scout.readqrcode("C-6")
-        tm1 = tm.split(',')
-        scout.set("Team", tm1[0])
-        scout.set("Match", tm1[1])
-        scout.set("AllianceColor", scout.rangefield('L-10', 0, 1))
-        scout.set("StartPos", scout.rangefield('F-10', 0, 2))
-        scout.set("StartLevel", scout.rangefield('G-12', 1, 2))
-        scout.set("CrossedLine", scout.boolfield('M-12'))
-        scout.set("AutoShipHatch", scout.rangefield('T-10', 1, 2))
-        scout.set("AutoShipCargo", scout.rangefield('T-11', 1, 2))
-        scout.set("AutoShipHatchFailures", scout.rangefield('W-10', 1, 2))
-        scout.set("AutoShipCargoFailures", scout.rangefield('W-11', 1, 2))
-        scout.set("AutoRocketHatch", scout.rangefield('AE-10', 1, 2))
-        scout.set("AutoRocketCargo", scout.rangefield('AE-11', 1, 2))
-        scout.set("AutoRocketHatchFailures", scout.rangefield('AH-10', 1, 2))
-        scout.set("AutoRocketCargoFailures", scout.rangefield('AH-11', 1, 2))
+    scout.set("Fouls", int(0))
+    scout.set("TechFouls", int(0))
+    scout.set("Replay", int(0))
 
-        scout.set("RocketL1Hatch", scout.rangefield('H-14', 1, 4))
-        scout.set("RocketL1HatchFailures", scout.rangefield('M-14', 1, 6))
-        scout.set("RocketL2Hatch", scout.rangefield('H-15', 1, 4))
-        scout.set("RocketL2HatchFailures", scout.rangefield('M-15', 1, 6))
-        scout.set("RocketL3Hatch", scout.rangefield('H-16', 1, 4))
-        scout.set("RocketL3HatchFailures", scout.rangefield('M-16', 1, 6))
+    scout.set("M01a", scout.boolfield('Q-14'))
+    scout.set("M01b", scout.countfield('O-16', 0, 2))
 
-        scout.set("RocketL1Cargo", scout.rangefield('Y-14', 1, 4))
-        scout.set("RocketL1CargoFailures", scout.rangefield('AD-14', 1, 6))
-        scout.set("RocketL2Cargo", scout.rangefield('Y-15', 1, 4))
-        scout.set("RocketL2CargoFailures", scout.rangefield('AD-15', 1, 6))
-        scout.set("RocketL3Cargo", scout.rangefield('Y-16', 1, 4))
-        scout.set("RocketL3CargoFailures", scout.rangefield('AD-16', 1, 6))
+    scout.set("M02a", scout.boolfield('Q-20'))
+    scout.set("M02b", scout.boolfield('Q-22'))
+    scout.set("M02c", scout.boolfield('Q-23'))
 
-        scout.set("ShipHatch", scout.rangefield('F-18', 1, 8))
-        scout.set("ShipHatchFailures", scout.rangefield('O-18', 1, 8))
-        scout.set("ShipCargo", scout.rangefield('F-19', 1, 8))
-        scout.set("ShipCargoFailures", scout.rangefield('O-19', 1, 8))
+    scout.set("M03a", scout.boolfield('Q-27'))
 
-        scout.set("ClimbLevelAttempted", scout.rangefield('G-21', 1, 3))
-        scout.set("ClimbLevel", scout.rangefield('G-22', 1, 3))
-        scout.set("WonMatch", scout.boolfield('F-24'))
-        scout.set("LiftedOthersAttempted", scout.rangefield('P-21', 2, 3))
-        scout.set("LiftedOthers", scout.rangefield('P-22', 2, 3))
-        scout.set("Disabled", scout.boolfield('F-25'))
+    scout.set("M04a", scout.boolfield('Q-30'))
 
-        scout.set("DriverRating", scout.rangefield('U-21', 0, 5))
-        scout.set("HatchColRating", scout.rangefield('U-22', 0, 1))
-        scout.set("HatchDelRating", scout.rangefieldcolumn('AI-18', 0, 5))
-        scout.set("CargoColRating", scout.rangefielddebug('AD-19', 0, 1))
-        scout.set("CargoDelRating", scout.rangefield('AD-20', 0, 1))
-        scout.set("DefenseRating", scout.rangefield('AD-21', 0, 1))
-        scout.set("AvoidDefenseRating", scout.rangefield('AD-22', 0, 1))
+    scout.set("M05a", scout.countfield('L-34', 1, 8))
+    scout.set("M05b", scout.countfield('L-36', 1, 8))
 
-        scout.set("Replay", scout.boolfield('AK-5'))
+    scout.set("M06a", scout.boolfield('Q-40'))
 
-        scout.submit()
+    scout.set("M07a", scout.boolfield('Q-43'))
+
+    scout.set("M08a", scout.rangefield('O-47', 0, 2))
+
+    scout.set("M09a", scout.countfield('AF-15', 1, 6))
+
+    scout.set("M10a", scout.boolfield('AK-19'))
+
+    scout.set("M11a", scout.rangefield('AE-24', 0, 2))
+
+    scout.set("M12a", scout.countfield('AH-27', 0, 3))
+    row1 = scout.countfield('AC-30', 1, 9)
+    row2 = scout.countfield('AC-31', 10, 18)
+    scout.set("M12b", max(row1, row2))
+
+    scout.set("M13a", scout.countfield('AH-36', 0, 6))
+
+    scout.set("M14a", scout.rangefield('AE-40', 0, 6))
+
+    scout.submit()
 
 
 #Takes an entry from the Scout database table and generates text for display on the team page. This page has 4 columns, currently used for auto, 2 teleop, and other (like fouls and end game)
