@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block header %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Initialize the DataTable component
+            var myTable = $('#teamsTable').DataTable({
+                "searching": false,
+                "ordering":  false,
+                "lengthChange": false,
+                "ajax": {
+                    "url": "/api/teams",
+                    "dataSrc": "",
+                    "error": function() {
+                        console.log("Unable to get data from server");
+                    }
+                },
+                "columns": [
+                    { "data": "rank", "class": "aligncenter" },
+                    { "data": "number", "class": "aligncenter"},
+                    { "data": "name", "class": "aligncenter" },
+                    { "data": "round1", "class": "aligncenter" },
+                    { "data": "round2", "class": "aligncenter" },
+                    { "data": "round3", "class": "aligncenter" },
+                    { "data": "round4", "class": "aligncenter" },
+                    { "data": "round5", "class": "aligncenter" },
+                    { "data": "bestScore", "class": "aligncenter" }
+                ],
+                "info": false
+            });
+
+            $.ajax({
+                "url": "api/settings",
+                "success": function(data) {
+                    myTable.column(7).visible(data.qualifying_rounds == 5);
+                    myTable.column(8).visible(data.qualifying_rounds == 5);
+                }
+            })
+
+            // Set up the page looping
+            var page = 1;
+            var pageCount = myTable.page.info().pages;
+
+            // Auto-advance through the datatable pages
+            var page_advance = setInterval(function() {
+
+                // If on the final page, reload the data then start again
+                if(page >= pageCount) {
+                    myTable.ajax.reload();
+                    myTable.page(0).draw(false);
+                    pageCount = myTable.page.info().pages;
+                    page = 0;
+                }
+
+                // Set the table page and redraw
+                myTable.page(page).draw(false);
+                page++;
+            }, 10000);
+
+            $('a#toggle-columns').on( 'click', function (e) {
+                e.preventDefault();
+
+                // Get the column API object
+                var columnRound4 = myTable.column(7);
+                var columnRound5 = myTable.column(8);
+
+                // Toggle the visibility
+                columnRound4.visible( ! columnRound4.visible() );
+                columnRound5.visible( ! columnRound5.visible() );
+            } );
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <table class="table table-striped" id="teamsTable">
+                <thead>
+                    <th>Rank</th>
+                    <th>Team #</th>
+                    <th>Name</th>
+                    <th>Round 1</th>
+                    <th>Round 2</th>
+                    <th>Round 3</th>
+                    <th>Round 4</th>
+                    <th>Round 5</th>
+                    <th>Best</th>
+                </thead>
+            </table>
+        </div>
+    </div>
+{% endblock %}

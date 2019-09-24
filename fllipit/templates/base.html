@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="{{ url_for('static', filename='js/libs/jquery-1.11.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/libs/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/libs/moment.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/libs/jquery.dataTables.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/libs/dataTables.bootstrap.js') }}"></script>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="{{ url_for('static', filename = 'images/FIRSTLego_iconVert_RGB.jpg') }}" align="left">
+                </div>
+                <div class="col-md-4">
+                    <h2 id='title'>{{title}}</h2>
+                    <h3 id='subtitle'>{{subtitle}}</h3>
+                </div>
+                <div class="col-md-4">
+                    <img src="{{ url_for('static', filename = 'images/Number_blue-1.gif') }}" align="right">
+                </div>
+            </div>
+        </div>
+        {% block header %}{% endblock %}
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>
