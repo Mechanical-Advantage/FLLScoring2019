@@ -1,0 +1,110 @@
+{% extends "base.html" %}        
+{% block header %}
+    <script type="text/javascript">
+        $(document).ready(function () { 
+            // Initialize the DataTable component
+            var top12Table = $('#top12').DataTable({
+                "searching": false,
+                "ordering":  false,
+                "lengthChange": false,
+                "info": false,                
+                "ajax": {
+                    "url": "/api/playoffs/6",
+                    "dataSrc": "",
+                    "error": function() {
+                        console.log("Unable to get data from server");
+                    }
+                },
+                "columns": [
+                    { "data": "number", "class": "aligncenter"},
+                    { "data": "name", "class": "aligncenter" },
+                    { "data": "score", "class": "aligncenter" }
+                ]
+            });
+            var top4Table = $('#top4').DataTable({
+                "searching": false,
+                "ordering":  false,
+                "lengthChange": false,
+                "info": false,                
+                "ajax": {
+                    "url": "/api/playoffs/7",
+                    "dataSrc": "",
+                    "error": function() {
+                        console.log("Unable to get data from server");
+                    }
+                },
+                "columns": [
+                    { "data": "number", "class": "aligncenter"},
+                    { "data": "name", "class": "aligncenter" },
+                    { "data": "score", "class": "aligncenter" }
+                ]
+            });
+            var top2Table = $('#top2').DataTable({
+                "searching": false,
+                "ordering":  false,
+                "lengthChange": false,
+                "info": false,                
+                "ajax": {
+                    "url": "/api/playoffs/8",
+                    "dataSrc": "",
+                    "error": function() {
+                        console.log("Unable to get data from server");
+                    }
+                },
+                "columns": [
+                    { "data": "number", "class": "aligncenter"},
+                    { "data": "name", "class": "aligncenter" },
+                    { "data": "score", "class": "aligncenter" }
+                ]
+            });
+            
+            // Auto-reload
+            var dataReload = setInterval(function() {
+                console.log("reloading data");
+                top12Table.ajax.reload();
+                top12Table.page(0).draw(false);
+                top4Table.ajax.reload();
+                top4Table.page(0).draw(false);
+                top2Table.ajax.reload();
+                top2Table.page(0).draw(false);
+            }, 10000);
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <h3 class='roundHeader'>Quarterfinals</h3>
+                <table class="table table-striped" id="top12">
+                    <thead>
+                        <th>ID#</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </thead>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <h3 class='roundHeader'>Semifinals</h3>
+                <table class="table table-striped" id="top4">
+                    <thead>
+                        <th>ID#</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </thead>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <h3 class='roundHeader'>Finals</h3>
+                <table class="table table-striped" id="top2">
+                    <thead>
+                        <th>ID#</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
