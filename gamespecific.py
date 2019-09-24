@@ -83,8 +83,8 @@ def processSheet(scout):
 
     scout.set("M04a", scout.boolfield('Q-30'))
 
-    scout.set("M05a", scout.countfield('L-34', 1, 8))
-    scout.set("M05b", scout.countfield('L-36', 1, 8))
+    scout.set("M05a", scout.countfield('K-34', 0, 8))
+    scout.set("M05b", scout.countfield('K-36', 0, 8))
 
     scout.set("M06a", scout.boolfield('Q-40'))
 
@@ -92,15 +92,15 @@ def processSheet(scout):
 
     scout.set("M08a", scout.rangefield('O-47', 0, 2))
 
-    scout.set("M09a", scout.countfield('AF-15', 1, 6))
+    scout.set("M09a", scout.countfield('AE-15', 0, 6))
 
     scout.set("M10a", scout.boolfield('AK-19'))
 
     scout.set("M11a", scout.rangefield('AE-24', 0, 2))
 
     scout.set("M12a", scout.countfield('AH-27', 0, 3))
-    row1 = scout.countfield('AC-30', 1, 9)
-    row2 = scout.countfield('AC-31', 10, 18)
+    row1 = scout.countfield('AC-30', 0, 8)
+    row2 = scout.countfield('AC-31', 9, 17)
     scout.set("M12b", max(row1, row2))
 
     scout.set("M13a", scout.countfield('AH-36', 0, 6))
