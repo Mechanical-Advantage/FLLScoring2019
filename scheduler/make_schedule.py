@@ -17,7 +17,7 @@ config = {
 "judging_start": 1575640800, # unix time, when does the first judging session begin?
 "judging_inlength": 600, # secs, how long does each judging session take?
 "judging_outlength": 600, # secs, how long should the break between judging sessions take?
-"judging_teamgrace": 0 # secs, how long before or after judging should a team be excluded from matches?
+"judging_teamgrace": 600 # secs, how long before or after judging should a team be excluded from matches?
 }
 
 #Setup db connection
@@ -130,7 +130,7 @@ def create_match(start_time, end_time, match_number):
         arrangements.append(arrangement)
 
     #Find optimal arrangement
-    teams_final = sorted(arrangements, key=lambda arrangement: (arrangement["table_repeats"]))[0]["teams"]
+    teams_final = sorted(arrangements, key=lambda arrangement: (arrangement["table_repeats"],) + tuple(arrangement["teams"]))[0]["teams"]
 
     #Update team data
     table = -1
@@ -171,9 +171,12 @@ while not matches_complete():
     if matches_cycle > config["match_breakfrequency"] + config["match_breaklength"]:
         matches_cycle = 1
     if matches_cycle > config["match_breakfrequency"]:
-        matches.append({"start_time": start_time, "end_time": start_time + config["match_cycletime"], "teams": []})
+        matches.append({"start_time": start_time, "end_time": start_time + config["match_cycletime"], "teams": [-1] * config["match_tablepaircount"] * 2})
     else:
-        matches.append(create_match(start_time, start_time + config["match_cycletime"], match_number))
+        match_to_append = create_match(start_time, start_time + config["match_cycletime"], match_number)
+        if match_to_append["teams"] == [-1] * config["match_tablepaircount"] * 2:
+            matches_cycle = config["match_breakfrequency"] + 1
+        matches.append(match_to_append)
 
 #Print matches
 print("\nMatches:")
