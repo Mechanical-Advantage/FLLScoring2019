@@ -20,7 +20,7 @@ config = {
 "judging_roomcount": 2, # how many rooms are available FOR EACH CATEGORY?
 "judging_start": 1575640800, # unix time, when does the first judging session begin?
 "judging_inlength": 600, # secs, how long does each judging session take?
-"judging_outlength": 600, # secs, how long should the break between judging sessions take?
+"judging_outlength": 300, # secs, how long should the break between judging sessions take?
 "judging_teamgrace": 600 # secs, how long before or after judging should a team be excluded from matches?
 }
 
