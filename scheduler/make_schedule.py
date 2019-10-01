@@ -6,6 +6,9 @@ from datetime import datetime
 
 #Config
 teams_db = "../teams.db"
+print_output = False
+team_schedule_tester = False
+create_excel = True
 config = {
 "match_tablepaircount": 3, # how many pairs of tables are available for matches?
 "match_countperteam": 5, # how many matches should each team play?
@@ -20,6 +23,10 @@ config = {
 "judging_outlength": 600, # secs, how long should the break between judging sessions take?
 "judging_teamgrace": 600 # secs, how long before or after judging should a team be excluded from matches?
 }
+
+#Import excel writer script if needed
+if create_excel:
+    import excel_writer
 
 #Setup db connection
 conn = sql.connect(teams_db)
@@ -65,9 +72,10 @@ for blockdata in judging_blocks.values():
         judging_sessions.append(session)
 
 #Print judging sessions
-print("Judging sessions:")
-[print(x) for x in judging_sessions]
-print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%-I:%M %p"))
+if print_output:
+    print("Judging sessions:")
+    [print(x) for x in judging_sessions]
+    print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%-I:%M %p"))
 
 #Generate possible arrangements of teams
 def get_arrangements(pair_count):
@@ -205,20 +213,27 @@ if len(matches) - last_break <= config["match_endjointhreshold"]:
     matches = generate_matches(break_limit=last_break-config["match_breaklength"]+1)
 
 #Print matches
-print("\nMatches:")
-[print(x) for x in matches]
-print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
+if print_output:
+    print("\nMatches:")
+    [print(x) for x in matches]
+    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
 
 #Team schedule generator
-print()
-team_query = int(input("Enter a team number: "))
-schedule_items = []
-for session in judging_sessions:
-    if team_query in session["teams"]:
-        schedule_items.append({"start_time": session["start_time"], "end_time": session["end_time"], "location": "Room " + str(session["teams"].index(team_query)+1)})
-table_lookup = ["R1", "R2", "B1", "B2", "Y1", "Y2"]
-for match in matches:
-    if team_query in match["teams"]:
-        schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "location": "Table " + table_lookup[match["teams"].index(team_query)]})
-for item in sorted(schedule_items, key=lambda x: (x["start_time"],)):
-    print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["location"])
+if team_schedule_tester:
+    if print_output:
+        print()
+    team_query = int(input("Enter a team number: "))
+    schedule_items = []
+    for session in judging_sessions:
+        if team_query in session["teams"]:
+            schedule_items.append({"start_time": session["start_time"], "end_time": session["end_time"], "location": "Room " + str(session["teams"].index(team_query)+1)})
+    table_lookup = ["R1", "R2", "B1", "B2", "Y1", "Y2"]
+    for match in matches:
+        if team_query in match["teams"]:
+            schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "location": "Table " + table_lookup[match["teams"].index(team_query)]})
+    for item in sorted(schedule_items, key=lambda x: (x["start_time"],)):
+        print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["location"])
+
+#Create excel file
+if create_excel:
+    excel_writer.create(judging_sessions=judging_sessions, matches=matches)
