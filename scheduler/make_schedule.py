@@ -13,6 +13,7 @@ config = {
 "match_cycletime": 480, # secs, how long between the start of each match?
 "match_breakfrequency": 6, # how many matches should be played between each break?
 "match_breaklength": 2, # how many matches should each break last?
+"match_endjointhreshold": 1, # how few matches are required to join the final two sections?
 "judging_roomcount": 2, # how many rooms are available FOR EACH CATEGORY?
 "judging_start": 1575640800, # unix time, when does the first judging session begin?
 "judging_inlength": 600, # secs, how long does each judging session take?
@@ -84,7 +85,7 @@ def create_match(start_time, end_time, match_number):
     #Get list of possible teams
     teams_sorted = []
     for teamnumber in teams.keys():
-        if ((teams[teamnumber]["blackout_start"] < start_time and teams[teamnumber]["blackout_end"] < start_time) or (teams[teamnumber]["blackout_start"] > end_time and teams[teamnumber]["blackout_end"] > end_time)) and teams[teamnumber]["match_count"] < config["match_countperteam"]:
+        if ((teams[teamnumber]["blackout_start"] <= start_time and teams[teamnumber]["blackout_end"] <= start_time) or (teams[teamnumber]["blackout_start"] >= end_time and teams[teamnumber]["blackout_end"] >= end_time)) and teams[teamnumber]["match_count"] < config["match_countperteam"]:
             temp_team = copy.deepcopy(teams[teamnumber])
             temp_team["number"] = teamnumber
             teams_sorted.append(temp_team)
@@ -105,7 +106,7 @@ def create_match(start_time, end_time, match_number):
         pairs[i].append(teams_sorted[0])
         teams_sorted.remove(teams_sorted[0])
         for team in teams_sorted:
-            if team["number"] not in pairs[i][0]["previous_opponents"]:
+            if (team["number"] not in pairs[i][0]["previous_opponents"]) and (team["number"] != -1):
                 pairs[i].append(team)
                 teams_sorted.remove(team)
                 break
@@ -160,25 +161,64 @@ def matches_complete():
     return(complete)
 
 #Generate matches
-matches = []
-match_number = 0
-matches_cycle = 0
-start_time = config["match_starttime"] - config["match_cycletime"]
-while not matches_complete():
-    match_number += 1
-    start_time += config["match_cycletime"]
-    matches_cycle += 1
-    if matches_cycle > config["match_breakfrequency"] + config["match_breaklength"]:
-        matches_cycle = 1
-    if matches_cycle > config["match_breakfrequency"]:
-        matches.append({"start_time": start_time, "end_time": start_time + config["match_cycletime"], "teams": [-1] * config["match_tablepaircount"] * 2})
-    else:
-        match_to_append = create_match(start_time, start_time + config["match_cycletime"], match_number)
-        if match_to_append["teams"] == [-1] * config["match_tablepaircount"] * 2:
-            matches_cycle = config["match_breakfrequency"] + 1
-        matches.append(match_to_append)
+last_break = 0
+def generate_matches(break_limit=None):
+    global last_break
+    matches = []
+    match_number = 0
+    matches_cycle = 0
+    last_played = True
+    start_time = config["match_starttime"] - config["match_cycletime"]
+    while not matches_complete():
+        match_number += 1
+        start_time += config["match_cycletime"]
+        matches_cycle += 1
+        if matches_cycle > config["match_breakfrequency"] + config["match_breaklength"]:
+            matches_cycle = 1
+        if break_limit == None:
+            past_break_limit = False
+        else:
+            past_break_limit = match_number >= break_limit
+        
+        if matches_cycle > config["match_breakfrequency"] and not past_break_limit:
+            last_break = match_number
+            last_played = False
+            matches.append({"start_time": start_time, "end_time": start_time + config["match_cycletime"], "teams": [-1] * config["match_tablepaircount"] * 2})
+        else:
+            match_to_append = create_match(start_time, start_time + config["match_cycletime"], match_number)
+            matches.append(match_to_append)
+            if match_to_append["teams"] == [-1] * config["match_tablepaircount"] * 2:
+                if last_played:
+                    matches_cycle = config["match_breakfrequency"] + 1
+                    last_played = False
+                else:
+                    matches_cycle -= 1
+            else:
+                last_played = True
+    return(matches)
+
+#Regenerate matches if break too close to end
+teams_backup = copy.deepcopy(teams)
+matches = generate_matches()
+if len(matches) - last_break <= config["match_endjointhreshold"]:
+    teams = teams_backup
+    matches = generate_matches(break_limit=last_break-config["match_breaklength"]+1)
 
 #Print matches
 print("\nMatches:")
 [print(x) for x in matches]
 print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
+
+#Team schedule generator
+print()
+team_query = int(input("Enter a team number: "))
+schedule_items = []
+for session in judging_sessions:
+    if team_query in session["teams"]:
+        schedule_items.append({"start_time": session["start_time"], "end_time": session["end_time"], "location": "Room " + str(session["teams"].index(team_query)+1)})
+table_lookup = ["R1", "R2", "B1", "B2", "Y1", "Y2"]
+for match in matches:
+    if team_query in match["teams"]:
+        schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "location": "Table " + table_lookup[match["teams"].index(team_query)]})
+for item in sorted(schedule_items, key=lambda x: (x["start_time"],)):
+    print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["location"])
