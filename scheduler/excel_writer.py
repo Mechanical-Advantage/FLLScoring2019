@@ -6,7 +6,7 @@ file_path = "schedule.xlsx"
 table_names = ["Red 1", "Red 2", "Blue 1", "Blue 2", "Yellow 1", "Yellow 2"]
 room_names = ["Robot 1", "Robot 2", "Project 1", "Project 2", "Core Values 1", "Core Values 2"]
 
-def create(judging_sessions=[], matches=[]):
+def create(judging_sessions=None, matches=[]):
     #Initialization
     workbook = xlsxwriter.Workbook(file_path)
     formats = {}
@@ -15,9 +15,13 @@ def create(judging_sessions=[], matches=[]):
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
     formats["matches_headers"] = workbook.add_format({"align": "center", "bold": True, "top": True, "bottom": True})
     formats["matches_data"] = workbook.add_format({"align": "center"})
+    formats["judging_title"] = workbook.add_format({"bold": True, "bg_color": "#00FFFF"})
+    formats["judging_headers"] = workbook.add_format({"align": "center", "valign": "vcenter", "bold": True, "top": True, "text_wrap": True})
+    formats["judging_data"] = workbook.add_format({"align": "center"})
+    formats["judging_sectionstart"] = workbook.add_format({"align": "center", "top": True})
     
     #Create match overview setup
-    matches_sheet = workbook.add_worksheet()
+    matches_sheet = workbook.add_worksheet("Match Schedule")
     matches_sheet.set_column(0, 1, 12)
     matches_sheet.set_column(2, len(table_names) + 1, 8)
     matches_sheet.merge_range(0, 0, 0, len(table_names) + 1, "OFFICIAL ROBOT ROUNDS SCHEDULE", formats["matches_title"])
@@ -41,5 +45,33 @@ def create(judging_sessions=[], matches=[]):
                 to_write = team
             matches_sheet.write(match_number + 1, table + 2, to_write, formats["matches_data"])
 
+    if judging_sessions != None:
+        #Create judging overview setup
+        judging_sheet = workbook.add_worksheet("Judging Schedule")
+        judging_sheet.set_column(0, 0, 12)
+        judging_sheet.set_column(1, len(table_names), 8)
+        judging_sheet.merge_range(0, 0, 0, len(room_names), "JUDGING SESSION SCHEDULE", formats["judging_title"])
+        judging_sheet.write(1, 0, "Time", formats["judging_headers"])
+        for i in range(len(room_names)):
+            judging_sheet.write(1, i + 1, room_names[i], formats["judging_headers"])
+
+        #Fill in judging data
+        i = -1
+        for session in judging_sessions:
+            i += 1
+            if i % 3 == 0:
+                format = formats["judging_sectionstart"]
+            else:
+                format = formats["judging_data"]
+            judging_sheet.write(i + 2, 0, datetime.fromtimestamp(session["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(session["end_time"]).strftime("%-I:%M"), format)
+            room = -1
+            for team in session["teams"]:
+                room += 1
+                if team == -1:
+                    to_write = ""
+                else:
+                    to_write = team
+                judging_sheet.write(i + 2, room + 1, to_write, format)
+    
     #Close workbook
     workbook.close()
