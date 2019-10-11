@@ -47,9 +47,11 @@ while True:
 
     conn = sql.connect('data_2019qualifier.db')
     conn2 = sql.connect('fllipit\\fllipit.db')
+    conn3 = sql.connect('..\\playoffdisplay\\playoff.db')
     team_conn = sql.connect('teams.db')
     cur = conn.cursor()
     cur2 = conn2.cursor()
+    cur3 = conn3.cursor()
     team_cur = team_conn.cursor()
     team_cur.execute("SELECT * FROM master_teams order by team")
     teamscores=[]
@@ -72,13 +74,17 @@ while True:
             matchscore += scoring_extra["M08a"][matchdata[z][19]]
             matchscore += scoring_extra["M11a"][matchdata[z][22]]
             matchscore += scoring_extra["M14a"][matchdata[z][26]]
-            teamscores[i][count]=matchscore
-            teamscores[i][count+1] = 6 - matchdata[z][26]
-            count = count + 2
+            if matchdata[z][2] >= 60:
+                insertCommand = """INSERT INTO 'match_scpres' ('match','team','score', 'penalties') VALUES (?,?,?,?);"""
+            else:
+                teamscores[i][count]=matchscore
+                teamscores[i][count+1] = 6 - matchdata[z][26]
+                count = count + 2 
 
 
     cur2.execute("DELETE FROM team")
     conn2.commit()
+    conn3.commit()
     for i in range(0,len(teamscores)):
         insertCommand = """INSERT INTO 'team' ('number','name','affiliation', 'round1', 'round1penalties', 'round2', 'round2penalties', 'round3', 'round3penalties', 'round4', 'round4penalties', 'round5', 'round5penalties') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"""
         insert_data = ()
@@ -91,3 +97,4 @@ while True:
     conn.close()
     conn2.close()
     team_conn.close()
+    conn3.close()
