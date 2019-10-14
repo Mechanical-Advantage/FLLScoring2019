@@ -19,6 +19,7 @@ config = {
 "match_breaklength": 2, # how many matches should each break last?
 "match_endjointhreshold": 1, # how few matches are required to join the final two sections?
 "judging_roomcount": 2, # how many rooms are available FOR EACH CATEGORY?
+"judging_catcount": 3, # how many judging categories?
 "judging_start": 1575640800, # unix time, when does the first judging session begin?
 "judging_inlength": 600, # secs, how long does each judging session take?
 "judging_outlength": 300, # secs, how long should the break between judging sessions take?
@@ -44,8 +45,8 @@ for teamrow in teams_raw:
 if enable_judging:
     #Create judging blocks
     judging_blocks = {}
-    block_count = math.ceil(len(teams)/(config["judging_roomcount"]*3))
-    block_length = (config["judging_inlength"] + config["judging_outlength"]) * 3
+    block_count = math.ceil(len(teams)/(config["judging_roomcount"]*config["judging_catcount"]))
+    block_length = (config["judging_inlength"] + config["judging_outlength"]) * config["judging_catcount"]
     for i in range(1, block_count+1):
         start_time = config["judging_start"] + (block_length * (i - 1))
         judging_blocks[i] = {"teams": [], "start_time": start_time}
@@ -55,21 +56,22 @@ if enable_judging:
     for teamnumber in teams.keys():
         judging_blocks[block]["teams"].append(teamnumber)
         teams[teamnumber]["blackout_start"] = judging_blocks[block]["start_time"] - config["judging_teamgrace"]
-        teams[teamnumber]["blackout_end"] = judging_blocks[block]["start_time"] + (3 * (config["judging_inlength"] + config["judging_outlength"])) - config["judging_outlength"] + config["judging_teamgrace"]
-        if len(judging_blocks[block]["teams"]) >= config["judging_roomcount"]*3:
+        teams[teamnumber]["blackout_end"] = judging_blocks[block]["start_time"] + (config["judging_catcount"] * (config["judging_inlength"] + config["judging_outlength"])) - config["judging_outlength"] + config["judging_teamgrace"]
+        if len(judging_blocks[block]["teams"]) >= config["judging_roomcount"]*config["judging_catcount"]:
             block += 1
 
     #Create judging sessions
     judging_sessions = []
     for blockdata in judging_blocks.values():
-        while len(blockdata["teams"]) < config["judging_roomcount"] * 3:
+        while len(blockdata["teams"]) < config["judging_roomcount"] * config["judging_catcount"]:
             blockdata["teams"].append(-1)
-        time_shift_lookup = {0: 0, 2: 1, 1: 2}
-        for shift in [0, 2, 1]:
-            start_time = blockdata["start_time"] + (time_shift_lookup[shift] * (config["judging_inlength"] + config["judging_outlength"]))
+        time_shift = -1
+        for shift in [0] + list(range(config["judging_catcount"]))[::-1][:-1]:
+            time_shift += 1
+            start_time = blockdata["start_time"] + (time_shift * (config["judging_inlength"] + config["judging_outlength"]))
             session = {"start_time": start_time, "end_time": start_time + config["judging_inlength"], "teams": []}
             for i in range(len(blockdata["teams"])):
-                i_shifted = (i + (shift * config["judging_roomcount"])) % (config["judging_roomcount"] * 3)
+                i_shifted = (i + (shift * config["judging_roomcount"])) % (config["judging_roomcount"] * config["judging_catcount"])
                 session["teams"].append(blockdata["teams"][i_shifted])
             judging_sessions.append(session)
 
@@ -226,7 +228,7 @@ if create_excel:
         temp_sessions = judging_sessions
     else:
         temp_sessions = None
-    excel_writer.create(judging_sessions=temp_sessions, matches=matches)
+    excel_writer.create(judging_sessions=temp_sessions, judging_catcount=config["judging_catcount"], matches=matches)
 
 #Team schedule generator
 if team_schedule_tester:

@@ -6,7 +6,7 @@ file_path = "schedule.xlsx"
 table_names = ["Red 1", "Red 2", "Blue 1", "Blue 2", "Yellow 1", "Yellow 2"]
 room_names = ["Robot 1", "Robot 2", "Project 1", "Project 2", "Core Values 1", "Core Values 2"]
 
-def create(judging_sessions=None, matches=[]):
+def create(judging_sessions=None, judging_catcount=None, matches=[]):
     #Initialization
     workbook = xlsxwriter.Workbook(file_path)
     formats = {}
@@ -59,10 +59,13 @@ def create(judging_sessions=None, matches=[]):
         i = -1
         for session in judging_sessions:
             i += 1
-            if i % 3 == 0:
-                format = formats["judging_sectionstart"]
-            else:
+            if judging_catcount == None or judging_catcount == 1:
                 format = formats["judging_data"]
+            else:
+                if i % judging_catcount == 0:
+                    format = formats["judging_sectionstart"]
+                else:
+                    format = formats["judging_data"]
             judging_sheet.write(i + 2, 0, datetime.fromtimestamp(session["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(session["end_time"]).strftime("%-I:%M"), format)
             room = -1
             for team in session["teams"]:
