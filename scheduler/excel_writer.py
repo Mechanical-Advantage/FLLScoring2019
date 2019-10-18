@@ -6,7 +6,7 @@ file_path = "schedule.xlsx"
 table_names = ["Red 1", "Red 2", "Blue 1", "Blue 2", "Yellow 1", "Yellow 2"]
 room_names = ["Robot 1", "Robot 2", "Project 1", "Project 2", "Core Values 1", "Core Values 2"]
 
-def create(judging_sessions=None, judging_catcount=None, matches=[]):
+def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedules={}):
     #Initialization
     workbook = xlsxwriter.Workbook(file_path)
     formats = {}

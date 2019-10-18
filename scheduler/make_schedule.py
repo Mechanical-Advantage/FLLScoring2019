@@ -6,6 +6,8 @@ from datetime import datetime
 
 #Config
 teams_db = "../teams.db"
+judging_lookup = ["Robot", "Project", "Core Values"]
+table_lookup = ["R1", "R2", "B1", "B2", "Y1", "Y2"]
 print_output = False
 team_schedule_tester = False
 create_excel = True
@@ -222,27 +224,38 @@ if print_output:
     [print(x) for x in matches]
     print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
 
+#Get schedule for team
+def get_team_schedule(team_query):
+    schedule_items = []
+    if enable_judging:
+        for session in judging_sessions:
+            if team_query in session["teams"]:
+                room = session["teams"].index(team_query)
+                judging_type = judging_lookup[math.floor(room/config["judging_roomcount"])]
+                schedule_items.append({"start_time": session["start_time"], "end_time": session["end_time"], "title": judging_type + " Judging", "location": "Room " + str(room+1)})
+    match_number = 0
+    for match in matches:
+        match_number += 1
+        if team_query in match["teams"]:
+            schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "title": "Match " + str(match_number), "location": "Table " + table_lookup[match["teams"].index(team_query)]})
+    return(sorted(schedule_items, key=lambda x: (x["start_time"],)))
+
 #Create excel file
 if create_excel:
     if enable_judging:
         temp_sessions = judging_sessions
     else:
         temp_sessions = None
-    excel_writer.create(judging_sessions=temp_sessions, judging_catcount=config["judging_catcount"], matches=matches)
+
+    team_schedules = {}
+    for team in [int(x[0]) for x in teams_raw]:
+        team_schedules[team] = get_team_schedule(team)
+    excel_writer.create(judging_sessions=temp_sessions, judging_catcount=config["judging_catcount"], matches=matches, team_schedules=team_schedules)
 
 #Team schedule generator
 if team_schedule_tester:
     if print_output:
         print()
     team_query = int(input("Enter a team number: "))
-    schedule_items = []
-    if enable_judging:
-        for session in judging_sessions:
-            if team_query in session["teams"]:
-                schedule_items.append({"start_time": session["start_time"], "end_time": session["end_time"], "location": "Room " + str(session["teams"].index(team_query)+1)})
-    table_lookup = ["R1", "R2", "B1", "B2", "Y1", "Y2"]
-    for match in matches:
-        if team_query in match["teams"]:
-            schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "location": "Table " + table_lookup[match["teams"].index(team_query)]})
-    for item in sorted(schedule_items, key=lambda x: (x["start_time"],)):
-        print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["location"])
+    for item in get_team_schedule(team_query):
+        print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["title"] + " (" + item["location"] + ")")
