@@ -87,22 +87,11 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
         team_sheet.write(1, 2, "Location", formats["matches_headers"])
 
         row = 2
-
         for i in schedule:
-            #print(i["start_time"])
-            team_sheet.write(row, 0, datetime.fromtimestamp(i["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(i["end_time"]).strftime("%I:%M"))
-            team_sheet.write(row, 1, i["title"])
-            team_sheet.write(row, 2, i["location"])
+            team_sheet.write(row, 0, datetime.fromtimestamp(i["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(i["end_time"]).strftime("%I:%M"), formats["matches_data"])
+            team_sheet.write(row, 1, i["title"], formats["matches_data"])
+            team_sheet.write(row, 2, i["location"], formats["matches_data"])
             row = row+1
-
-
-      
-        
-                    
-                
-
-
-
     
     #Close workbook
     workbook.close()
