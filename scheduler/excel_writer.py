@@ -35,7 +35,7 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
     for match in matches:
         match_number += 1
         matches_sheet.write(match_number + 1, 0, match_number, formats["matches_data"])
-        matches_sheet.write(match_number + 1, 1, datetime.fromtimestamp(match["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(match["end_time"]).strftime("%-I:%M"), formats["matches_data"])
+        matches_sheet.write(match_number + 1, 1, datetime.fromtimestamp(match["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(match["end_time"]).strftime("%I:%M"), formats["matches_data"])
         table = -1
         for team in match["teams"]:
             table += 1
@@ -66,7 +66,7 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
                     format = formats["judging_sectionstart"]
                 else:
                     format = formats["judging_data"]
-            judging_sheet.write(i + 2, 0, datetime.fromtimestamp(session["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(session["end_time"]).strftime("%-I:%M"), format)
+            judging_sheet.write(i + 2, 0, datetime.fromtimestamp(session["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(session["end_time"]).strftime("%I:%M"), format)
             room = -1
             for team in session["teams"]:
                 room += 1

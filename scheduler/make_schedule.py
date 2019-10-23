@@ -81,7 +81,7 @@ if enable_judging:
     if print_output:
         print("\nJudging sessions:")
         [print(x) for x in judging_sessions]
-        print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%-I:%M %p"))
+        print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%I:%M %p"))
 
 #Generate possible arrangements of teams
 def get_arrangements(pair_count):
@@ -222,7 +222,7 @@ if len(matches) - last_break <= config["match_endjointhreshold"]:
 if print_output:
     print("\nMatches:")
     [print(x) for x in matches]
-    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
+    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%I:%M %p"))
 
 #Get schedule for team
 def get_team_schedule(team_query):
@@ -258,4 +258,4 @@ if team_schedule_tester:
         print()
     team_query = int(input("Enter a team number: "))
     for item in get_team_schedule(team_query):
-        print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["title"] + " (" + item["location"] + ")")
+        print(datetime.fromtimestamp(item["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%I:%M") + ") " + item["title"] + " (" + item["location"] + ")")
