@@ -1,14 +1,10 @@
 import xlsxwriter
 from datetime import datetime
-
-#Config
-file_path = "schedule.xlsx"
-table_names = ["Red 1", "Red 2", "Blue 1", "Blue 2", "Yellow 1", "Yellow 2"]
-room_names = ["Robot 1", "Robot 2", "Project 1", "Project 2", "Core Values 1", "Core Values 2"]
+import config
 
 def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedules={}):
     #Initialization
-    workbook = xlsxwriter.Workbook(file_path)
+    workbook = xlsxwriter.Workbook(config.excel_path)
     formats = {}
     
     #Add formats
@@ -24,12 +20,12 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
     #Create match overview setup
     matches_sheet = workbook.add_worksheet("Match Schedule")
     matches_sheet.set_column(0, 1, 12)
-    matches_sheet.set_column(2, len(table_names) + 1, 8)
-    matches_sheet.merge_range(0, 0, 0, len(table_names) + 1, "OFFICIAL ROBOT ROUNDS SCHEDULE", formats["matches_title"])
+    matches_sheet.set_column(2, len(config.tables_long) + 1, 8)
+    matches_sheet.merge_range(0, 0, 0, len(config.tables_long) + 1, "OFFICIAL ROBOT ROUNDS SCHEDULE", formats["matches_title"])
     matches_sheet.write(1, 0, "Match Number", formats["matches_headers"])
     matches_sheet.write(1, 1, "Time", formats["matches_headers"])
-    for i in range(len(table_names)):
-        matches_sheet.write(1, i + 2, table_names[i], formats["matches_headers"])
+    for i in range(len(config.tables_long)):
+        matches_sheet.write(1, i + 2, config.tables_long[i], formats["matches_headers"])
     
     #Fill in match data
     match_number = 0
@@ -50,11 +46,11 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
         #Create judging overview setup
         judging_sheet = workbook.add_worksheet("Judging Schedule")
         judging_sheet.set_column(0, 0, 12)
-        judging_sheet.set_column(1, len(table_names), 8)
-        judging_sheet.merge_range(0, 0, 0, len(room_names), "JUDGING SESSION SCHEDULE", formats["judging_title"])
+        judging_sheet.set_column(1, len(config.tables_long), 8)
+        judging_sheet.merge_range(0, 0, 0, len(config.judging_rooms), "JUDGING SESSION SCHEDULE", formats["judging_title"])
         judging_sheet.write(1, 0, "Time", formats["judging_headers"])
-        for i in range(len(room_names)):
-            judging_sheet.write(1, i + 1, room_names[i], formats["judging_headers"])
+        for i in range(len(config.judging_rooms)):
+            judging_sheet.write(1, i + 1, config.judging_rooms[i], formats["judging_headers"])
 
         #Fill in judging data
         i = -1
