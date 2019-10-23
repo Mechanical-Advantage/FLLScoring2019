@@ -84,7 +84,7 @@ while True:
 
 
     cur2.execute("DELETE FROM team")
-    conn2.commit()
+    
     for i in range(0,len(teamscores)):
         insertCommand = """INSERT INTO 'team' ('number','name','affiliation', 'round1', 'round1penalties', 'round2', 'round2penalties', 'round3', 'round3penalties', 'round4', 'round4penalties', 'round5', 'round5penalties') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"""
         insert_data = ()
