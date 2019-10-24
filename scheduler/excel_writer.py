@@ -6,11 +6,13 @@ file_path = "schedule.xlsx"
 table_names = ["Red 1", "Red 2", "Blue 1", "Blue 2", "Yellow 1", "Yellow 2"]
 room_names = ["Robot 1", "Robot 2", "Project 1", "Project 2", "Core Values 1", "Core Values 2"]
 
+
 def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedules={}):
     #Initialization
     workbook = xlsxwriter.Workbook(file_path)
     formats = {}
     
+
     #Add formats
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
     formats["schedule_title"] = workbook.add_format({"bold": True, "bg_color": "#FFFF00"})
@@ -77,6 +79,19 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
                     to_write = team
                 judging_sheet.write(i + 2, room + 1, to_write, format)
 
+    all_matches = workbook.add_worksheet("All Matches")
+
+    all_matches_row = 0
+
+    table_number = {
+                    "Table R1" : 1,
+                    "Table R2" : 2,
+                    "Table B1" : 3,
+                    "Table B2" : 4,
+                    "Table Y1" : 5,
+                    "Table Y2" : 6,
+                }
+
     #Creates spreadsheets for each team's schedules
     for team, schedule in team_schedules.items():
         team_sheet = workbook.add_worksheet("Team " + str(team) + " Schedule")
@@ -95,9 +110,18 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
             team_sheet.write(row, 2, i["location"])
             row = row+1
 
+            #Create a table of team number, match number, and table number
+            
+            if i["title"][:5] == "Match":
+                
+                all_matches.write(all_matches_row, 0, team)
+                all_matches.write(all_matches_row, 1, i["title"][6:])
+                all_matches.write(all_matches_row, 2, table_number.get(i["location"]))
+                all_matches_row = all_matches_row+1
 
-      
-        
+                
+
+
                     
                 
 
