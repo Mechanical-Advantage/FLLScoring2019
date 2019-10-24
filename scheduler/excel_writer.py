@@ -2,6 +2,17 @@ import xlsxwriter
 from datetime import datetime
 import config
 
+#Function for rendering time w/o padding
+def convert_time(timestamp, include_p=False):
+    hour = datetime.fromtimestamp(timestamp).strftime("%I")
+    while hour[:1] == "0":
+        hour = hour[1:]
+    if include_p:
+        minute_string = ":%M %p"
+    else:
+        minute_string = ":%M"
+    return(hour + datetime.fromtimestamp(timestamp).strftime(minute_string))
+
 def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedules={}):
     #Initialization
     workbook = xlsxwriter.Workbook(config.excel_path)
@@ -32,7 +43,8 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
     for match in matches:
         match_number += 1
         matches_sheet.write(match_number + 1, 0, match_number, formats["matches_data"])
-        matches_sheet.write(match_number + 1, 1, datetime.fromtimestamp(match["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(match["end_time"]).strftime("%I:%M"), formats["matches_data"])
+        
+        matches_sheet.write(match_number + 1, 1, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["matches_data"])
         table = -1
         for team in match["teams"]:
             table += 1
@@ -63,7 +75,7 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
                     format = formats["judging_sectionstart"]
                 else:
                     format = formats["judging_data"]
-            judging_sheet.write(i + 2, 0, datetime.fromtimestamp(session["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(session["end_time"]).strftime("%I:%M"), format)
+            judging_sheet.write(i + 2, 0, convert_time(session["start_time"]) + "-" + convert_time(session["end_time"]), format)
             room = -1
             for team in session["teams"]:
                 room += 1
@@ -84,7 +96,7 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
 
         row = 2
         for i in schedule:
-            team_sheet.write(row, 0, datetime.fromtimestamp(i["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(i["end_time"]).strftime("%I:%M"), formats["matches_data"])
+            team_sheet.write(row, 0, convert_time(i["start_time"]) + "-" + convert_time(i["end_time"]), formats["matches_data"])
             team_sheet.write(row, 1, i["title"], formats["matches_data"])
             team_sheet.write(row, 2, i["location"], formats["matches_data"])
             row = row+1

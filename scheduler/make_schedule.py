@@ -13,6 +13,17 @@ if config.create_excel:
 conn = sql.connect(config.teams_db)
 cur = conn.cursor()
 
+#Function for rendering time w/o padding
+def convert_time(timestamp, include_p=False):
+    hour = datetime.fromtimestamp(timestamp).strftime("%I")
+    while hour[:1] == "0":
+        hour = hour[1:]
+    if include_p:
+        minute_string = ":%M %p"
+    else:
+        minute_string = ":%M"
+    return(hour + datetime.fromtimestamp(timestamp).strftime(minute_string))
+
 #Generate team objects
 teams = {}
 teams_raw = cur.execute("SELECT team FROM master_teams ORDER BY team ASC").fetchall()
@@ -58,7 +69,7 @@ if config.enable_judging:
     if config.print_output:
         print("\nJudging sessions:")
         [print(x) for x in judging_sessions]
-        print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%I:%M %p"))
+        print("Ends at", convert_time(judging_sessions[len(judging_sessions)-1]["end_time"], True))
 
 #Generate possible arrangements of teams
 def get_arrangements(pair_count):
@@ -202,7 +213,7 @@ if len(matches) - last_break <= config.general["match_endjointhreshold"]:
 if config.print_output:
     print("\nMatches:")
     [print(x) for x in matches]
-    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%I:%M %p"))
+    print("Ends at", convert_time(matches[len(matches)-1]["end_time"], True))
 
 #Get schedule for team
 def get_team_schedule(team_query):
@@ -238,4 +249,4 @@ if config.team_schedule_tester:
         print()
     team_query = int(input("Enter a team number: "))
     for item in get_team_schedule(team_query):
-        print(datetime.fromtimestamp(item["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%I:%M") + ") " + item["title"] + " (" + item["location"] + ")")
+        print(convert_time(item["start_time"]) + "-" + convert_time(item["end_time"]) + ") " + item["title"] + " (" + item["location"] + ")")
