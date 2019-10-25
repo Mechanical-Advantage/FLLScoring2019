@@ -20,13 +20,14 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
     
     #Add formats
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
-    formats["schedule_title"] = workbook.add_format({"bold": True, "bg_color": "#FFFF00"})
     formats["matches_headers"] = workbook.add_format({"align": "center", "bold": True, "top": True, "bottom": True})
     formats["matches_data"] = workbook.add_format({"align": "center"})
     formats["judging_title"] = workbook.add_format({"bold": True, "bg_color": "#00FFFF"})
     formats["judging_headers"] = workbook.add_format({"align": "center", "valign": "vcenter", "bold": True, "top": True, "text_wrap": True})
     formats["judging_data"] = workbook.add_format({"align": "center"})
     formats["judging_sectionstart"] = workbook.add_format({"align": "center", "top": True})
+    formats["table_title"] = workbook.add_format({"bold": True, "bg_color": "#FF0000"})
+    formats["schedule_title"] = workbook.add_format({"bold": True, "bg_color": "#FFFF00"})
     
     #Create match overview setup
     matches_sheet = workbook.add_worksheet("Match Schedule")
@@ -85,6 +86,21 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
                     to_write = team
                 judging_sheet.write(i + 2, room + 1, to_write, format)
 
+    #Create sheets for each table
+    for table_number in range(config.general["match_tablepaircount"]*2):
+        table_sheet = workbook.add_worksheet("Table " + config.tables_short[table_number] + " Schedule")
+        table_sheet.set_column(0, 1, 15)
+        table_sheet.merge_range(0, 0, 0, 1, "TABLE " + config.tables_short[table_number] + " SCHEDULE", formats["table_title"])
+        table_sheet.write(1, 0, "Time", formats["matches_headers"])
+        table_sheet.write(1, 1, "Team", formats["matches_headers"])
+        row = 0
+        for match in matches:
+            team = match["teams"][table_number]
+            if team != -1:
+                row += 1
+                table_sheet.write(row + 1, 0, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["matches_data"])
+                table_sheet.write(row + 1, 1, team, formats["matches_data"])
+
     #Creates spreadsheets for each team's schedules
     all_matches = workbook.add_worksheet("All Matches")
     all_matches_row = 0
@@ -109,8 +125,6 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
                 all_matches.write(all_matches_row, 1, int(i["title"][6:]))
                 all_matches.write(all_matches_row, 2, config.tables_short.index(i["location"][-2:]) + 1)
                 all_matches_row = all_matches_row+1
-
-    #Create sheets for each table
 
     #Close workbook
     workbook.close()

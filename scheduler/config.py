@@ -3,7 +3,7 @@ teams_db = "../teams.db"
 excel_path = "schedule.xlsx"
 
 # Names lists
-tables_long = ["Red 1", "Red 2", "Blue 1", "Blue 2"] # for match overview & table overviews
+tables_long = ["Red 1", "Red 2", "Blue 1", "Blue 2"] # for match overview
 tables_short = ["R1", "R2", "B1", "B2"] # for team schedules
 judging_rooms = ["Room 108"] # for judging overview
 judging_catnames = ["Core Values"] # for team schedules
