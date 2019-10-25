@@ -86,6 +86,8 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
                 judging_sheet.write(i + 2, room + 1, to_write, format)
 
     #Creates spreadsheets for each team's schedules
+    all_matches = workbook.add_worksheet("All Matches")
+    all_matches_row = 0
     for team, schedule in team_schedules.items():
         team_sheet = workbook.add_worksheet("Team " + str(team) + " Schedule")
         team_sheet.set_column(0,2,18)
@@ -99,7 +101,14 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
             team_sheet.write(row, 0, convert_time(i["start_time"]) + "-" + convert_time(i["end_time"]), formats["matches_data"])
             team_sheet.write(row, 1, i["title"], formats["matches_data"])
             team_sheet.write(row, 2, i["location"], formats["matches_data"])
-            row = row+1
+            row += 1
+
+            #Create a table of team number, match number, and table number
+            if i["title"][:5] == "Match":
+                all_matches.write(all_matches_row, 0, team)
+                all_matches.write(all_matches_row, 1, int(i["title"][6:]))
+                all_matches.write(all_matches_row, 2, config.tables_short.index(i["location"][-2:]) + 1)
+                all_matches_row = all_matches_row+1
     
     #Close workbook
     workbook.close()
