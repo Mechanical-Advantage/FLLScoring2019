@@ -241,7 +241,7 @@ if config.create_excel:
     team_schedules = {}
     for team in [int(x[0]) for x in teams_raw]:
         team_schedules[team] = get_team_schedule(team)
-    excel_writer.create(judging_sessions=temp_sessions, judging_catcount=config.general["judging_catcount"], matches=matches, team_schedules=team_schedules)
+    excel_writer.create(judging_sessions=temp_sessions, matches=matches, team_schedules=team_schedules)
 
 #Team schedule generator
 if config.team_schedule_tester:

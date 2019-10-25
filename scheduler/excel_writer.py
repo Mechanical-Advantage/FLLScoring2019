@@ -13,7 +13,7 @@ def convert_time(timestamp, include_p=False):
         minute_string = ":%M"
     return(hour + datetime.fromtimestamp(timestamp).strftime(minute_string))
 
-def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedules={}):
+def create(judging_sessions=None, matches=[], team_schedules={}):
     #Initialization
     workbook = xlsxwriter.Workbook(config.excel_path)
     formats = {}
@@ -68,10 +68,10 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
         i = -1
         for session in judging_sessions:
             i += 1
-            if judging_catcount == None or judging_catcount == 1:
+            if config.general["judging_catcount"] == None or config.general["judging_catcount"] == 1:
                 format = formats["judging_data"]
             else:
-                if i % judging_catcount == 0:
+                if i % config.general["judging_catcount"] == 0:
                     format = formats["judging_sectionstart"]
                 else:
                     format = formats["judging_data"]
@@ -109,6 +109,8 @@ def create(judging_sessions=None, judging_catcount=None, matches=[], team_schedu
                 all_matches.write(all_matches_row, 1, int(i["title"][6:]))
                 all_matches.write(all_matches_row, 2, config.tables_short.index(i["location"][-2:]) + 1)
                 all_matches_row = all_matches_row+1
-    
+
+    #Create sheets for each table
+
     #Close workbook
     workbook.close()
