@@ -92,28 +92,36 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
     #Create sheets for each table
     for table_number in range(config.general["match_tablepaircount"]*2):
         table_sheet = workbook.add_worksheet("Table " + config.tables_short[table_number] + " Schedule")
-        table_sheet.set_column(0, 1, 15)
-        table_sheet.merge_range(0, 0, 0, 1, "TABLE " + config.tables_short[table_number] + " SCHEDULE", formats["table_title"])
-        table_sheet.write(1, 0, "Time", formats["matches_headers"])
-        table_sheet.write(1, 1, "Team", formats["matches_headers"])
+        table_sheet.set_column(0, 2, 15)
+        table_sheet.merge_range(0, 0, 0, 2, "TABLE " + config.tables_short[table_number] + " SCHEDULE", formats["table_title"])
+        table_sheet.write(1, 0, "Match", formats["matches_headers"])
+        table_sheet.write(1, 1, "Time", formats["matches_headers"])
+        table_sheet.write(1, 2, "Team", formats["matches_headers"])
         
         table_sheet_full = workbook.add_worksheet("Table " + config.tables_short[table_number] + " Schedule (full)")
-        table_sheet_full.set_column(0, 1, 40)
+        table_sheet_full.set_page_view()
+        table_sheet_full.center_horizontally()
+        table_sheet_full.set_column(0, 2, 27)
         table_sheet_full.set_row(0, 35)
         table_sheet_full.set_row(1, 35)
-        table_sheet_full.merge_range(0, 0, 0, 1, "TABLE " + config.tables_short[table_number] + " SCHEDULE", formats["table_full_title"])
-        table_sheet_full.write(1, 0, "Time", formats["table_full_headers"])
-        table_sheet_full.write(1, 1, "Team", formats["table_full_headers"])
+        table_sheet_full.merge_range(0, 0, 0, 2, "TABLE " + config.tables_short[table_number] + " SCHEDULE", formats["table_full_title"])
+        table_sheet_full.write(1, 0, "Match", formats["table_full_headers"])
+        table_sheet_full.write(1, 1, "Time", formats["table_full_headers"])
+        table_sheet_full.write(1, 2, "Team", formats["table_full_headers"])
         
         row = 0
+        match_number = 0
         for match in matches:
             team = match["teams"][table_number]
+            match_number += 1
             if team != -1:
                 row += 1
-                table_sheet.write(row + 1, 0, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["matches_data"])
-                table_sheet.write(row + 1, 1, team, formats["matches_data"])
-                table_sheet_full.write(row + 1, 0, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["table_full_data"])
-                table_sheet_full.write(row + 1, 1, team, formats["table_full_data"])
+                table_sheet.write(row + 1, 0, match_number, formats["matches_data"])
+                table_sheet.write(row + 1, 1, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["matches_data"])
+                table_sheet.write(row + 1, 2, team, formats["matches_data"])
+                table_sheet_full.write(row + 1, 0, match_number, formats["table_full_data"])
+                table_sheet_full.write(row + 1, 1, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["table_full_data"])
+                table_sheet_full.write(row + 1, 2, team, formats["table_full_data"])
                 table_sheet_full.set_row(row + 1, 35)
 
     #Creates spreadsheets for each team's schedules
