@@ -146,7 +146,7 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
             if i["title"][:5] == "Match":
                 all_matches.write(all_matches_row, 0, team)
                 all_matches.write(all_matches_row, 1, int(i["title"][6:]))
-                all_matches.write(all_matches_row, 2, config.tables_short.index(i["location"][-2:]) + 1)
+                all_matches.write(all_matches_row, 2, config.tables_short.index(i["location"][6:]) + 1)
                 all_matches_row = all_matches_row+1
 
     #Close workbook
