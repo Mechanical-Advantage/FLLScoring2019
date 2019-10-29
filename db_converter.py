@@ -75,15 +75,6 @@ while True:
             matchscore += scoring_extra["M08a"][matchdata[z][19]]
             matchscore += scoring_extra["M11a"][matchdata[z][22]]
             matchscore += scoring_extra["M14a"][matchdata[z][26]]
-<<<<<<< HEAD
-            if matchdata[z][2] >=60:
-                cur_playoff_display.execute("INSERT INTO match_scores(match, team, score, penalties) VALUES (?, ?, ?, ?)", (matchdata[z][2], matchdata[z][1], matchscore, 6 - matchdata[z][26]))
-            else:
-                teamscores[i][count]=matchscore
-                teamscores[i][count+1] = 6 - matchdata[z][26]
-                count = count + 2
-=======
-
             smallinspection = matchdata[z][27] == 1
             if smallinspection:
                 missionscomplete = [False] * 13
@@ -99,8 +90,13 @@ while True:
             teamscores[i][count]=matchscore
             teamscores[i][count+1] = 6 - matchdata[z][26]
             count = count + 2
->>>>>>> origin/'local_merge'
 
+            if matchdata[z][2] >=60:
+                cur_playoff_display.execute("INSERT INTO match_scores(match, team, score, penalties) VALUES (?, ?, ?, ?)", (matchdata[z][2], matchdata[z][1], matchscore, 6 - matchdata[z][26]))
+            else:
+                teamscores[i][count]=matchscore
+                teamscores[i][count+1] = 6 - matchdata[z][26]
+                count = count + 2
 
     cur2.execute("DELETE FROM team")
     
