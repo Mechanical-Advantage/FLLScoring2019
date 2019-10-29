@@ -9,14 +9,14 @@ teams_db = "../teams.db"
 print_output = False
 team_schedule_tester = False
 create_excel = True
-enable_judging = True
+enable_judging = False
 config = {
-"match_tablepaircount": 3, # how many pairs of tables are available for matches?
+"match_tablepaircount": 2, # how many pairs of tables are available for matches?
 "match_countperteam": 5, # how many matches should each team play?
 "match_starttime": 1575640800, # unix time, when does the first match begin?
-"match_cycletime": 480, # secs, how long between the start of each match?
+"match_cycletime": 750, # secs, how long between the start of each match?
 "match_breakfrequency": 6, # how many matches should be played between each break?
-"match_breaklength": 2, # how many matches should each break last?
+"match_breaklength": 0, # how many matches should each break last?
 "match_endjointhreshold": 1, # how few matches are required to join the final two sections?
 "judging_roomcount": 2, # how many rooms are available FOR EACH CATEGORY?
 "judging_start": 1575640800, # unix time, when does the first judging session begin?
@@ -77,7 +77,7 @@ if enable_judging:
     if print_output:
         print("\nJudging sessions:")
         [print(x) for x in judging_sessions]
-        print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%-I:%M %p"))
+        print("Ends at", datetime.fromtimestamp(judging_sessions[len(judging_sessions)-1]["end_time"]).strftime("%I:%M %p"))
 
 #Generate possible arrangements of teams
 def get_arrangements(pair_count):
@@ -130,11 +130,11 @@ def create_match(start_time, end_time, match_number):
         arrangement = {"teams": [], "table_repeats": 0}
         for pair_number in arrangement_base["pairs"]:
             reversed = arrangement_base["reverses"][pair_number]
-            
+
             team1 = pairs[pair_number][reversed]
             arrangement["teams"].append(team1["number"])
             arrangement["table_repeats"] += team1["previous_tables"][len(arrangement["teams"])-1]
-            
+
             team2 = pairs[pair_number][1-reversed]
             arrangement["teams"].append(team2["number"])
             arrangement["table_repeats"] += team2["previous_tables"][len(arrangement["teams"])-1]
@@ -151,7 +151,7 @@ def create_match(start_time, end_time, match_number):
             teams[teamnumber]["match_count"] += 1
             teams[teamnumber]["last_match"] = match_number
             teams[teamnumber]["previous_tables"][table] += 1
-            
+
             if table % 2 == 0:
                 opponent = teams_final[table + 1]
             else:
@@ -189,7 +189,7 @@ def generate_matches(break_limit=None):
             past_break_limit = False
         else:
             past_break_limit = match_number >= break_limit
-        
+
         if matches_cycle > config["match_breakfrequency"] and not past_break_limit:
             last_break = match_number
             last_played = False
@@ -218,7 +218,7 @@ if len(matches) - last_break <= config["match_endjointhreshold"]:
 if print_output:
     print("\nMatches:")
     [print(x) for x in matches]
-    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%-I:%M %p"))
+    print("Ends at", datetime.fromtimestamp(matches[len(matches)-1]["end_time"]).strftime("%I:%M %p"))
 
 #Create excel file
 if create_excel:
@@ -243,4 +243,4 @@ if team_schedule_tester:
         if team_query in match["teams"]:
             schedule_items.append({"start_time": match["start_time"], "end_time": match["end_time"], "location": "Table " + table_lookup[match["teams"].index(team_query)]})
     for item in sorted(schedule_items, key=lambda x: (x["start_time"],)):
-        print(datetime.fromtimestamp(item["start_time"]).strftime("%-I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%-I:%M") + ") " + item["location"])
+        print(datetime.fromtimestamp(item["start_time"]).strftime("%I:%M") + "-" + datetime.fromtimestamp(item["end_time"]).strftime("%I:%M") + ") " + item["location"])
