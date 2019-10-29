@@ -10,6 +10,7 @@ judging_catnames = ["Core Values"] # for team schedules
 
 # General config
 enable_judging = True
+allow_singles = False # should teams be allowed to play without an opponent? (ignored if all other teams have completed their matches)
 general = {
 "match_tablepaircount": 2, # how many pairs of tables are available for matches?
 "match_countperteam": 5, # how many matches should each team play?

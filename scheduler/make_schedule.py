@@ -82,14 +82,24 @@ def get_arrangements(pair_count):
             result.append(temp)
     return(result)
 
+#Get team -1 with correct data
+def getFillerTeam():
+    output = {"number": -1, "match_count": 0, "last_match": 0, "previous_opponents": [], "previous_tables": {}, "blackout_start": None, "blackout_end": None}
+    for table in range(config.general["match_tablepaircount"]*2):
+        output["previous_tables"][table] = 0
+    return(output)
+
 #Create single mach
 def create_match(start_time, end_time, match_number):
     #Get list of possible teams
     teams_sorted = []
+    incomplete_count = 0
     for teamnumber in teams.keys():
         outside_blackout = (teams[teamnumber]["blackout_start"] <= start_time and teams[teamnumber]["blackout_end"] <= start_time) or (teams[teamnumber]["blackout_start"] >= end_time and teams[teamnumber]["blackout_end"] >= end_time)
         matches_incomplete = teams[teamnumber]["match_count"] < config.general["match_countperteam"]
         match_grace_complete = match_number - teams[teamnumber]["last_match"] > config.general["match_teamgrace"]
+        if matches_incomplete:
+            incomplete_count += 1
         if outside_blackout and matches_incomplete and match_grace_complete:
             temp_team = copy.deepcopy(teams[teamnumber])
             temp_team["number"] = teamnumber
@@ -100,24 +110,29 @@ def create_match(start_time, end_time, match_number):
 
     #Add extra teams
     while len(teams_sorted) < config.general["match_tablepaircount"] * 2:
-        teams_sorted.append({"number": -1, "match_count": 0, "last_match": 0, "previous_opponents": [], "previous_tables": {}, "blackout_start": None, "blackout_end": None})
-        for table in range(config.general["match_tablepaircount"]*2):
-            teams_sorted[len(teams_sorted)-1]["previous_tables"][table] = 0
+        teams_sorted.append(getFillerTeam())
 
     #Create pairs
     pairs = []
     for i in range(config.general["match_tablepaircount"]):
         pairs.append([])
         pairs[i].append(teams_sorted[0])
-        teams_sorted.remove(teams_sorted[0])
+        first_team = True
         for team in teams_sorted:
-            if (team["number"] not in pairs[i][0]["previous_opponents"]) and (team["number"] != -1):
+            if (team["number"] not in pairs[i][0]["previous_opponents"]) and (team["number"] != -1) and (not first_team):
                 pairs[i].append(team)
                 teams_sorted.remove(team)
                 break
+            first_team = False
         if len(pairs[i]) == 1:
-            pairs[i].append(teams_sorted[0])
-            teams_sorted.remove(teams_sorted[0])
+            if (not config.allow_singles) and teams_sorted[1]["number"] == -1 and incomplete_count > 1:
+                pairs.pop()
+                pairs.append([getFillerTeam()] * 2)
+                continue
+            else:
+                pairs[i].append(teams_sorted[1])
+                teams_sorted.remove(teams_sorted[1])
+        teams_sorted.remove(teams_sorted[0])
 
     #Test possible arrangements
     arrangements = []
