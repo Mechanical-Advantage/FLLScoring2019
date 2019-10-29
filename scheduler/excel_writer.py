@@ -20,6 +20,7 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
 
     #Add formats
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
+    formats["schedule_title"] = workbook.add_format({"bold": True, "bg_color": "#FFFF00"})
     formats["matches_headers"] = workbook.add_format({"align": "center", "bold": True, "top": True, "bottom": True})
     formats["matches_data"] = workbook.add_format({"align": "center"})
     formats["judging_title"] = workbook.add_format({"bold": True, "bg_color": "#00FFFF"})
@@ -78,6 +79,7 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
                     format = formats["judging_sectionstart"]
                 else:
                     format = formats["judging_data"]
+
             judging_sheet.write(i + 2, 0, convert_time(session["start_time"]) + "-" + convert_time(session["end_time"]), format)
             room = -1
             for team in session["teams"]:
