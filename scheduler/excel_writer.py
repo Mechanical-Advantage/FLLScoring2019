@@ -20,7 +20,6 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
 
     #Add formats
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
-    formats["schedule_title"] = workbook.add_format({"bold": True, "bg_color": "#FFFF00"})
     formats["matches_headers"] = workbook.add_format({"align": "center", "bold": True, "top": True, "bottom": True})
     formats["matches_data"] = workbook.add_format({"align": "center"})
     formats["judging_title"] = workbook.add_format({"bold": True, "bg_color": "#00FFFF"})
