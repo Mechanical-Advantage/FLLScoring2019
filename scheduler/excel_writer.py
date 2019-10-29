@@ -17,7 +17,7 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
     #Initialization
     workbook = xlsxwriter.Workbook(config.excel_path)
     formats = {}
-    
+
     #Add formats
     formats["matches_title"] = workbook.add_format({"bold": True, "bg_color": "#00FF00"})
     formats["matches_headers"] = workbook.add_format({"align": "center", "bold": True, "top": True, "bottom": True})
@@ -47,7 +47,6 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
     for match in matches:
         match_number += 1
         matches_sheet.write(match_number + 1, 0, match_number, formats["matches_data"])
-        
         matches_sheet.write(match_number + 1, 1, convert_time(match["start_time"]) + "-" + convert_time(match["end_time"]), formats["matches_data"])
         table = -1
         for team in match["teams"]:

@@ -28,7 +28,8 @@ SCOUT_FIELDS = {
     "M12a": 0,
     "M12b": 0,
     "M13a": 0,
-    "M14a": 0
+    "M14a": 0,
+    "SmallInspection": 0
 }
 
 #Defines the fields that are stored in the "averages" and similar tables of the database. These are the fields displayed on the home page of the website.
@@ -67,6 +68,7 @@ def processSheet(scout):
     scout.set("Match", 10 * match1 + match2)
 
     scout.set("TableNumber", scout.rangefield('AC-9', 1, 6))
+    scout.set("SmallInspection", scout.boolfield('K-11'))
 
     scout.set("Fouls", int(0))
     scout.set("TechFouls", int(0))
@@ -103,7 +105,7 @@ def processSheet(scout):
     row2 = scout.countfield('AC-31', 9, 17)
     scout.set("M12b", max(row1, row2))
 
-    scout.set("M13a", scout.countfield('AH-36', 0, 6))
+    scout.set("M13a", scout.countfield('AH-36', 0, 3))
 
     scout.set("M14a", scout.rangefield('AE-40', 0, 6))
 
@@ -137,10 +139,10 @@ def generateChartData(e):
     dp = dict(CHART_FIELDS)
     dp["match"] = e['match']
 
-    dp['RocketL1Hatch'] += e['RocketL1Hatch']
-    dp['RocketL1Cargo'] += e['RocketL1Cargo']
-    dp['RocketL2Hatch'] += e['RocketL2Hatch']
-    dp['RocketL2Cargo'] += e['RocketL2Cargo']
+    dp['M01a'] += e['M01a']
+    dp['M01b'] += e['M01b']
+    dp['M02a'] += e['M02a']
+    dp['M02b'] += e['M02b']
 
     return dp
 
@@ -215,16 +217,16 @@ def calcTotals(entries):
         sums[key] = []
     #For each entry, add components to the running total if appropriate
     for i, e in enumerate(entries):
-        sums['RocketL1Hatch'].append(e['RocketL1Hatch'])
-        sums['RocketL1Cargo'].append(e['RocketL1Cargo'])
-        sums['RocketL2Hatch'].append(e['RocketL2Hatch'])
-        sums['RocketL2Cargo'].append(e['RocketL2Cargo'])
+        sums['M01a'].append(e['M01a'])
+        sums['M01b'].append(e['M01b'])
+        sums['M02a'].append(e['M02a'])
+        sums['M02b'].append(e['M02b'])
 
         if i < 3:
-            lastThree['RocketL1Hatch'] += e['RocketL1Hatch']
-            lastThree['RocketL1Cargo'] += e['RocketL1Cargo']
-            lastThree['RocketL2Hatch'] += e['RocketL2Hatch']
-            lastThree['RocketL2Cargo'] += e['RocketL2Cargo']
+            lastThree['M01a'] += e['M01a']
+            lastThree['M01b'] += e['M01b']
+            lastThree['M02a'] += e['M02a']
+            lastThree['M02b'] += e['M02b']
             lastThreeCount += 1
 
     #If there is data, average out the last 3 or less matches
