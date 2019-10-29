@@ -1,1 +1,1 @@
-CURRENT_EVENT = '2019qualifier'
+CURRENT_EVENT = '2019scrimmage'

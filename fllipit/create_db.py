@@ -1,4 +1,4 @@
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from models import DB, Team
 from fllipit import APP
 import api
@@ -34,10 +34,9 @@ for team in sorted(teams, key=lambda x: x.elim1, reverse=True)[:4]:
 for team in sorted(teams, key=lambda x: x.elim2, reverse=True)[:2]:
     team.advanceTo6 = True
     team.elim3=random.randrange(0, 400, 1)
-    
+
 # Add all teams to database
 for team in teams:
     DB.session.add(team)
-    
-DB.session.commit()
 
+DB.session.commit()

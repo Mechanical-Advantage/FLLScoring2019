@@ -7,7 +7,7 @@ dbdir = 'D:\mascout\FLLScoring2019\fllipit'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///D:\mascout\FLLScoring2019\\fllipit\\fllipit.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 DEBUG = False
-EVENT_NAME = 'Littleton FLL Qualifier'
+EVENT_NAME = 'Littleton/Bolton FLL Scrimmage'
 TEST_DB = True
 DB_FILE = 'D:\\mascout\\FLLScoring2019\\fllipit\\fllipit.db'
 

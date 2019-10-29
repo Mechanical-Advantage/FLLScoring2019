@@ -19,6 +19,7 @@ scoring = {
     24: 5, #M12b
     25: 10 #M13a
 }
+mission_lookup = [1, 1, 2, 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13]
 scoring_extra = {
     "M08a": {
         0: 0,
@@ -42,10 +43,9 @@ scoring_extra = {
 }
 
 while True:
-    time.sleep(15)
     print("Refreshed at", time.ctime())
 
-    conn = sql.connect('data_2019qualifier.db')
+    conn = sql.connect('data_2019scrimmage.db')
     conn2 = sql.connect('fllipit\\fllipit.db')
     conn_playoff_display = sql.connect('..\\playoffdisplay\\playoffs.db')
     team_conn = sql.connect('teams.db')
@@ -62,7 +62,7 @@ while True:
         teamscores.append([0,'','',0,0,0,0,0,0,0,0,0,0])
 
     for i in range(0,len(teamdata)):
-        cur.execute("SELECT * FROM scout WHERE team=? ORDER BY match",(teamdata[i][0],))
+        cur.execute("SELECT * FROM scout WHERE team=? ORDER BY match LIMIT 5",(teamdata[i][0],))
         count = 3
         matchdata = cur.fetchall()
         teamscores[i][0]=teamdata[i][0]
@@ -75,6 +75,22 @@ while True:
             matchscore += scoring_extra["M08a"][matchdata[z][19]]
             matchscore += scoring_extra["M11a"][matchdata[z][22]]
             matchscore += scoring_extra["M14a"][matchdata[z][26]]
+            smallinspection = matchdata[z][27] == 1
+            if smallinspection:
+                missionscomplete = [False] * 13
+                for fieldnumber in range(18):
+                    if matchdata[z][fieldnumber + 8] > 0:
+                        missionscomplete[mission_lookup[fieldnumber]-1] = True
+                for f in range(len(missionscomplete)):
+                    if missionscomplete[f]:
+                        if f == 1:
+                            matchscore += 10
+                        else:
+                            matchscore += 5
+            teamscores[i][count]=matchscore
+            teamscores[i][count+1] = 6 - matchdata[z][26]
+            count = count + 2
+
             if matchdata[z][2] >=60:
                 cur_playoff_display.execute("INSERT INTO match_scores(match, team, score, penalties) VALUES (?, ?, ?, ?)", (matchdata[z][2], matchdata[z][1], matchscore, 6 - matchdata[z][26]))
             else:
@@ -82,9 +98,8 @@ while True:
                 teamscores[i][count+1] = 6 - matchdata[z][26]
                 count = count + 2
 
-
     cur2.execute("DELETE FROM team")
-    conn2.commit()
+    
     for i in range(0,len(teamscores)):
         insertCommand = """INSERT INTO 'team' ('number','name','affiliation', 'round1', 'round1penalties', 'round2', 'round2penalties', 'round3', 'round3penalties', 'round4', 'round4penalties', 'round5', 'round5penalties') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);"""
         insert_data = ()
@@ -99,3 +114,4 @@ while True:
     conn2.close()
     conn_playoff_display.close()
     team_conn.close()
+    time.sleep(15)
