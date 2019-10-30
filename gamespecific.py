@@ -103,11 +103,12 @@ def processSheet(scout):
     scout.set("M12a", scout.countfield('AH-27', 0, 3))
     row1 = scout.countfield('AC-30', 0, 8)
     row2 = scout.countfield('AC-31', 9, 17)
-    scout.set("M12b", max(row1, row2))
+    row3 = scout.countfield('Ac-32', 18, 26)
+    scout.set("M12b", max(row1, row2, row3))
 
-    scout.set("M13a", scout.countfield('AH-36', 0, 3))
+    scout.set("M13a", scout.countfield('AH-37', 0, 3))
 
-    scout.set("M14a", scout.rangefield('AE-40', 0, 6))
+    scout.set("M14a", scout.rangefield('AE-41', 0, 6))
 
     scout.submit()
 
