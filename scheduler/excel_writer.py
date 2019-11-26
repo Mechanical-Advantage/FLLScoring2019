@@ -34,7 +34,7 @@ def create(judging_sessions=None, matches=[], team_schedules={}):
     
     #Create match overview setup
     matches_sheet = workbook.add_worksheet("Match Schedule")
-    matches_sheet.set_column(0, 1, 12)
+    matches_sheet.set_column(0, 1, 13)
     matches_sheet.set_column(2, len(config.tables_long) + 1, 8)
     matches_sheet.merge_range(0, 0, 0, len(config.tables_long) + 1, "OFFICIAL ROBOT ROUNDS SCHEDULE", formats["matches_title"])
     matches_sheet.write(1, 0, "Match Number", formats["matches_headers"])
