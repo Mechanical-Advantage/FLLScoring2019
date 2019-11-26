@@ -45,7 +45,7 @@ scoring_extra = {
 while True:
     print("Refreshed at", time.ctime())
 
-    conn = sql.connect('data_2019scrimmage.db')
+    conn = sql.connect('data_2019qualifier.db')
     conn2 = sql.connect('fllipit\\fllipit.db')
     conn_playoff_display = sql.connect('..\\playoffdisplay\\playoffs.db')
     team_conn = sql.connect('teams.db')
@@ -87,9 +87,6 @@ while True:
                             matchscore += 10
                         else:
                             matchscore += 5
-            teamscores[i][count]=matchscore
-            teamscores[i][count+1] = 6 - matchdata[z][26]
-            count = count + 2
 
             if matchdata[z][2] >=60:
                 cur_playoff_display.execute("INSERT INTO match_scores(match, team, score, penalties) VALUES (?, ?, ?, ?)", (matchdata[z][2], matchdata[z][1], matchscore, 6 - matchdata[z][26]))
